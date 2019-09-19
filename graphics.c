@@ -57,7 +57,7 @@ void graphics_run(GState *state)
     while (state->running)
     {
         event_handler(state);
-        update(state);
+        /* update(state); */
         SDL_Delay(REFRESH_TIME_STEP);
     }
 }
@@ -132,7 +132,7 @@ static void destroy_state(GState *state)
 {
     if (state == NULL)
         return;
-    tetris_destroy(state->tetris);
+    /* tetris_destroy(state->tetris); */
     SDL_DestroyRenderer(state->renderer);
     SDL_DestroyWindow(state->window);
     free(state);

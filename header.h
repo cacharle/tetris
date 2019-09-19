@@ -5,7 +5,8 @@
 # include <SDL2/SDL.h>
 
 # define WELL_W 12
-# define WELL_H 30
+# define WELL_H 20
+# define EMPTY_COLOR 0x000000
 # define TETRIMINO_I_COLOR 0x3df4f4
 # define TETRIMINO_L_COLOR 0xfaa022
 # define TETRIMINO_J_COLOR 0x0923a5
@@ -16,7 +17,6 @@
 # define LINE_CLEAR_SCORE 100
 # define LINE_CLEAR_SCORE_FACTOR 2
 # define SOFT_DROP_FACTOR 0.5
-# define HARD_DROP_TIME_STEP 100
 # define INIT_FALLING_TIME_STEP 1000
 # define PRE_FALLING_BUFFER_SIZE 2
 
@@ -258,7 +258,14 @@ typedef struct
 
 typedef struct
 {
+    int y;
+    int x;
+} Position;
+
+typedef struct
+{
     Color **well;
+    Position *falling;
     int score;
 } Tetris;
 
