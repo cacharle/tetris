@@ -32,6 +32,19 @@ typedef union
     } rgb;
 } Color;
 
+typedef enum
+{
+    DIRECTION_DOWN,
+    DIRECTION_LEFT,
+    DIRECTION_RIGHT
+} Direction;
+
+typedef enum
+{
+    NEXT_STATUS_OK,
+    NEXT_STATUS_END
+} NextStatus;
+
 typedef struct
 {
     int y;
@@ -40,9 +53,10 @@ typedef struct
 
 typedef struct
 {
-    int** shape;
+    int *rotations[4][4];
+    int rotation_index;
     Color color;
-    Position pos[4];
+    Position *pos;
 } Tetrimino;
 
 typedef struct
@@ -73,11 +87,8 @@ void graphics_run(GState *state);
 // tetris.c
 Tetris *tetris_init(void);
 void tetris_destroy(Tetris *tetris);
-void tetris_next(Tetris *tetris);
+NextStatus tetris_next(Tetris *tetris);
+bool tetris_move(Tetris *tetris, Direction direction);
 void tetris_hard_drop(Tetris *tetris);
-void tetris_shift_right(Tetris *tetris);
-void tetris_shift_left(Tetris *tetris);
-void tetris_rotate_right(Tetris *tetris);
-void tetris_rotate_left(Tetris *tetris);
 
 #endif

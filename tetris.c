@@ -1,8 +1,12 @@
 #include <stdlib.h>
 #include "header.h"
 
-static void update_falling(Tetris *tetris, Position updated_pos[4], Color color);
-static bool check_collision(Tetris *tetris, int y, int x);
+static Tetrimino *init_falling(void);
+static Position *next_rotation(Tetrimino *tetrimino);
+static void update_falling(Tetris *tetris, Position *updated_pos);
+static bool check_collision(Tetris *tetris, Position pos);
+static bool tetris_clear_lines(Tetris *tetris);
+static Position *clone_pos(Tetrimino *tetrimino);
 
 Tetris *tetris_init(void)
 {
@@ -44,52 +48,96 @@ void tetris_destroy(Tetris *tetris)
     free(tetris->well);
 }
 
-void tetris_next(Tetris *tetris)
+NextStatus tetris_next(Tetris *tetris)
 {
+    if (tetris_move(tetris, DIRECTION_DOWN))
+        return NEXT_STATUS_OK;
+    else
+    {
+        tetris_clear_lines(tetris);
+        return NEXT_STATUS_END;
+    }
+}
 
+static bool tetris_clear_lines(Tetris *tetris)
+{
+    return true;
 }
 
 void tetris_hard_drop(Tetris *tetris)
 {
-
+    while (tetris_next(tetris) != NEXT_STATUS_END);
 }
 
-void tetris_shift_right(Tetris *tetris)
+bool tetris_move(Tetris *tetris, Direction direction)
+{
+    Position *clone = clone_pos(&tetris->falling);
+    for (int i = 0; i < 4; i++)
+    {
+        if (direction == DIRECTION_DOWN)
+            clone[i].y++;
+        else
+            clone[i].x = clone[i].x + direction == DIRECTION_LEFT ? -1 : 1;
+        if (!check_collision(tetris, clone[i]))
+        {
+            free(clone);
+            return false;
+        }
+    }
+    update_falling(tetris, clone);
+    free(clone);
+    return true;
+}
+
+void tetris_rotate_right(Tetris *tetris, Direction direction)
 {
 
 }
 
-void tetris_shift_left(Tetris *tetris)
+static Tetrimino *init_falling(void)
 {
-
+    /* TETRIMINOES[rand() % 7]; */
+    return NULL;
 }
 
-void tetris_rotate_right(Tetris *tetris)
+static Position *next_rotation(Tetrimino *tetrimino)
 {
-
+    tetrimino->rotation_index++;
+    tetrimino->rotation_index %= 4;
+    /* Position *new = tetrimino->rotations[tetrimino->rotation_index]; */
+    return NULL;
 }
 
-void tetris_rotate_left(Tetris *tetris)
+static Position *clone_pos(Tetrimino *tetrimino)
 {
-
+    Position *pos = (Position*)malloc(sizeof(Position));
+    if (pos == NULL)
+        return NULL;
+    for (int i = 0; i < 4; i++)
+        pos[i] = tetrimino->pos[i];
+    return pos;
 }
 
-static void update_falling(Tetris *tetris, Position updated_pos[4], Color color)
+static void update_falling(Tetris *tetris, Position *updated_pos)
 {
     for (int i = 0; i < 4; i++)
-        tetris->well[tetris->falling.pos[i].y][tetris->falling.pos[i].x].hexcode =
-            EMPTY_COLOR;
+    {
+        int y = tetris->falling.pos[i].y;
+        int x = tetris->falling.pos[i].x;
+        tetris->well[y][x].hexcode = EMPTY_COLOR;
+    }
     for (int i = 0; i < 4; i++)
-        tetris->well[updated_pos[i].y][updated_pos[i].x] = color;
+        tetris->well[updated_pos[i].y][updated_pos[i].x] = tetris->falling.color;
+    tetris->falling.pos = updated_pos;
 }
 
-static bool check_collision(Tetris *tetris, int y, int x)
+static bool check_collision(Tetris *tetris, Position pos)
 {
-    if (y < PREDROP_BUF_SIZE || y > WELL_FULL_H)
+    if (pos.y < PREDROP_BUF_SIZE || pos.y > WELL_FULL_H)
         return false;
-    if (x < 0 || x > WELL_W)
+    if (pos.x < 0 || pos.x > WELL_W)
         return false;
-    if (tetris->well[y][x].hexcode != EMPTY_COLOR)
+    if (tetris->well[pos.y][pos.x].hexcode != EMPTY_COLOR)
         return false;
     return true;
 }
