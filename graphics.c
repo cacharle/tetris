@@ -57,7 +57,7 @@ void graphics_run(GState *state)
     while (state->running)
     {
         event_handler(state);
-        /* update(state); */
+        update(state);
         SDL_Delay(REFRESH_TIME_STEP);
     }
 }
@@ -72,13 +72,13 @@ static void update(GState *state)
 
 static void draw_grid(GState *state)
 {
-    for (int i = 0; i < WELL_H; i++)
+    for (int i = PREDROP_BUF_SIZE; i < WELL_H; i++)
         for (int j = 0; j < WELL_W; j++)
         {
             SET_RENDER_COLOR(state->renderer, state->tetris->well[i][j]);
             SDL_Rect block_rect = {
-                .x = j * state->block_size,
-                .y = i * state->block_size,
+                .x = j * state->block_size + j * state->block_padding,
+                .y = i * state->block_size + i * state->block_padding,
                 .w = state->block_size,
                 .h = state->block_size
             };
