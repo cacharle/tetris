@@ -34,20 +34,21 @@ typedef union
 
 typedef struct
 {
-    int** shape;
-    Color color;
-} Tetrimino;
-
-typedef struct
-{
     int y;
     int x;
 } Position;
 
 typedef struct
 {
+    int** shape;
+    Color color;
+    Position pos[4];
+} Tetrimino;
+
+typedef struct
+{
     Color **well;
-    Position *falling;
+    Tetrimino falling;
     int score;
 } Tetris;
 
