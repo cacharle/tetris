@@ -1,13 +1,19 @@
 #include <stdbool.h>
+#include <stdlib.h>
 #include <SDL2/SDL.h>
 #include "header.h"
 
 #define WINDOW_TITLE "Title"
 #define WINDOW_X 20
 #define WINDOW_Y 20
+#define REFRESH_TIME_STEP 5
+
+#define SET_RENDER_COLOR(renderer, c) ( \
+    SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
 
 static void update(GState *state);
 static void event_handler(GState *state);
+static void draw_grid(GState *state);
 static void destroy_state(GState *state);
 static void error_exit_state(GState *state, const char *msg);
 static void error_exit(const char *msg);
@@ -16,17 +22,27 @@ GState *graphics_init(int width, int height)
 {
     GState *state = (GState*)malloc(sizeof(GState));
     if (state == NULL)
-        return NULL;
+    {
+        fprintf(stderr, "Error: unable to allocate memory for graphic state");
+        exit(EXIT_FAILURE);
+    }
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         error_exit("unable to init SDL");
     state->window = SDL_CreateWindow(WINDOW_TITLE, WINDOW_X, WINDOW_Y,
-            width, height, 0);
+                                     width, height, 0);
     if (state->window == NULL)
         error_exit("unable to create window");
     state->renderer = SDL_CreateRenderer(state->window, -1, 0);
     if (state->renderer == NULL)
         error_exit_state(state, "unable to create renderer");
+    if ((state->tetris = tetris_init()) == NULL)
+        error_exit_state(state, "unable to init tetris");
     state->running = true;
+    state->window_w = width;
+    state->window_h = height;
+    state->block_size = 20;
+    state->block_padding = 2;
+    state->drop_soft = false;
     return state;
 }
 
@@ -42,13 +58,32 @@ void graphics_run(GState *state)
     {
         event_handler(state);
         update(state);
-        SDL_Delay(10);
+        SDL_Delay(REFRESH_TIME_STEP);
     }
 }
 
 static void update(GState *state)
 {
-    //do stuff
+    SDL_SetRenderDrawColor(state->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(state->renderer);
+    draw_grid(state);
+    SDL_RenderPresent(state->renderer);
+}
+
+static void draw_grid(GState *state)
+{
+    for (int i = 0; i < WELL_H; i++)
+        for (int j = 0; j < WELL_W; j++)
+        {
+            SET_RENDER_COLOR(state->renderer, state->tetris->well[i][j]);
+            SDL_Rect block_rect = {
+                .x = j * state->block_size,
+                .y = i * state->block_size,
+                .w = state->block_size,
+                .h = state->block_size
+            };
+            SDL_RenderFillRect(state->renderer, &block_rect);
+        }
 }
 
 static void event_handler(GState *state)
@@ -59,9 +94,36 @@ static void event_handler(GState *state)
         switch (e.type)
         {
             case SDL_QUIT:
-                state->running =
-                    false;
+                state->running = false;
                 break;
+            case SDL_KEYDOWN:
+                switch (e.key.keysym.sym)
+                {
+                    case SDLK_q:
+                        state->running = false;
+                        break;
+                    case SDLK_LEFT:
+                        tetris_shift_left(state->tetris);
+                        break;
+                    case SDLK_RIGHT:
+                        tetris_shift_right(state->tetris);
+                        break;
+                    case SDLK_DOWN:
+                        state->drop_soft = true;
+                        break;
+                    case SDLK_SPACE:
+                        tetris_hard_drop(state->tetris);
+                        break;
+                    case SDLK_UP:
+                        tetris_rotate_right(state->tetris);
+                        break;
+                    case SDLK_z:
+                        tetris_rotate_left(state->tetris);
+                        break;
+                }
+            case SDL_KEYUP:
+                if (e.key.keysym.sym == SDLK_DOWN)
+                    state->drop_soft = false;
         }
     }
 }
@@ -70,6 +132,7 @@ static void destroy_state(GState *state)
 {
     if (state == NULL)
         return;
+    tetris_destroy(state->tetris);
     SDL_DestroyRenderer(state->renderer);
     SDL_DestroyWindow(state->window);
     free(state);

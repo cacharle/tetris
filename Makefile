@@ -4,7 +4,7 @@ CCFLAGS = -Wall -Wextra
 LDFLAGS = $(shell sdl2-config --libs --cflags)
 
 HEADER = header.h
-SRC = main.c graphics.c
+SRC = main.c graphics.c tetris.c
 OBJ = $(SRC:.c=.o)
 
 RM = rm -f
