@@ -54,11 +54,19 @@ void graphics_quit(GState *state)
 
 void graphics_run(GState *state)
 {
+    unsigned int current_time, last_time = 0;
     while (state->running)
     {
         event_handler(state);
-        update(state);
-        SDL_Delay(REFRESH_TIME_STEP);
+        current_time = SDL_GetTicks();
+        if (SDL_TICKS_PASSED(current_time, last_time))
+        {
+            last_time = current_time + INIT_FALLING_TIME_STEP;
+        }
+            update(state);
+        printf("%d\n", tetris_next(state->tetris));
+        /* SDL_Delay(REFRESH_TIME_STEP); */
+        SDL_Delay(300);
     }
 }
 
@@ -103,10 +111,10 @@ static void event_handler(GState *state)
                         state->running = false;
                         break;
                     case SDLK_LEFT:
-                        tetris_shift_left(state->tetris);
+                        tetris_move(state->tetris, DIRECTION_LEFT);
                         break;
                     case SDLK_RIGHT:
-                        tetris_shift_right(state->tetris);
+                        tetris_move(state->tetris, DIRECTION_RIGHT);
                         break;
                     case SDLK_DOWN:
                         state->drop_soft = true;
@@ -115,10 +123,10 @@ static void event_handler(GState *state)
                         tetris_hard_drop(state->tetris);
                         break;
                     case SDLK_UP:
-                        tetris_rotate_right(state->tetris);
+                        tetris_rotate(state->tetris, DIRECTION_RIGHT);
                         break;
                     case SDLK_z:
-                        tetris_rotate_left(state->tetris);
+                        tetris_rotate(state->tetris, DIRECTION_LEFT);
                         break;
                 }
             case SDL_KEYUP:

@@ -1,6 +1,6 @@
 NAME = tetris
 CC = gcc
-CCFLAGS = -Wall -Wextra
+CCFLAGS = -Wall -Wextra -g
 LDFLAGS = $(shell sdl2-config --libs --cflags)
 
 HEADER = header.h
@@ -11,6 +11,10 @@ RM = rm -f
 
 .PHONY: all
 all: $(NAME)
+
+.PHONY: debug
+debug: CCFLAGS += -g -fsanitize=address
+debug: re
 
 $(NAME): $(OBJ) $(HEADER)
 	$(CC) $(LDFLAGS) $(CCFLAGS) -o $@ $(OBJ)

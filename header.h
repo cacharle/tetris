@@ -1,8 +1,12 @@
-#ifndef HEADER_H
-# define HEADER_H
+#ifndef __HEADER_H__
+# define __HEADER_H__
 
 # include <stdbool.h>
 # include <SDL2/SDL.h>
+
+# define TETRIMINO_NB 7
+# define TETRIMINO_ROTATIONS 4
+# define TETRIMINO_CONTAINER_SIZE 4
 
 # define WELL_W 12
 # define WELL_H 20
@@ -21,14 +25,16 @@
 # define PREDROP_BUF_SIZE 2
 # define WELL_FULL_H (WELL_H + PREDROP_BUF_SIZE)
 
+typedef unsigned char Byte;
+
 typedef union
 {
     int hexcode;
     struct
     {
-        unsigned char b;
-        unsigned char g;
-        unsigned char r;
+        Byte b;
+        Byte g;
+        Byte r;
     } rgb;
 } Color;
 
@@ -42,7 +48,8 @@ typedef enum
 typedef enum
 {
     NEXT_STATUS_OK,
-    NEXT_STATUS_END
+    NEXT_STATUS_END,
+    NEXT_STATUS_ERROR
 } NextStatus;
 
 typedef struct
@@ -53,16 +60,18 @@ typedef struct
 
 typedef struct
 {
-    int *rotations[4][4];
+    int index;
     int rotation_index;
     Color color;
     Position *pos;
+    Position pivot;
 } Tetrimino;
 
 typedef struct
 {
     Color **well;
-    Tetrimino falling;
+    Tetrimino *falling;
+    // int ****tetriminoes;
     int score;
 } Tetris;
 
@@ -89,6 +98,194 @@ Tetris *tetris_init(void);
 void tetris_destroy(Tetris *tetris);
 NextStatus tetris_next(Tetris *tetris);
 bool tetris_move(Tetris *tetris, Direction direction);
+void tetris_rotate(Tetris *tetris, Direction direction);
 void tetris_hard_drop(Tetris *tetris);
+
+static int TETRIMINOES[TETRIMINO_NB][TETRIMINO_ROTATIONS]
+[TETRIMINO_CONTAINER_SIZE][TETRIMINO_CONTAINER_SIZE] = {
+    { // O
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    { // I
+        {
+            {0, 0, 0, 0},
+            {1, 1, 2, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 2, 0},
+            {0, 0, 1, 0},
+            {0, 0, 1, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {1, 1, 2, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 2, 0},
+            {0, 0, 1, 0},
+            {0, 0, 1, 0}
+        }
+    },
+    { // S
+        {
+            {0, 0, 0, 0},
+            {0, 0, 2, 1},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 2, 1},
+            {0, 0, 0, 1},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 0, 2, 1},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 2, 1},
+            {0, 0, 0, 1},
+            {0, 0, 0, 0}
+        }
+    },
+    { // Z
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 0},
+            {0, 0, 1, 1},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 1},
+            {0, 0, 2, 1},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 0},
+            {0, 0, 1, 1},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 1},
+            {0, 0, 2, 1},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    { // L
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 1},
+            {0, 1, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 2, 0},
+            {0, 0, 1, 1},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 1},
+            {0, 1, 2, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 1, 1, 0},
+            {0, 0, 2, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    { // J
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 1},
+            {0, 0, 0, 1},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 1},
+            {0, 0, 2, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 1, 0, 0},
+            {0, 1, 2, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 2, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    { // T
+        {
+            {0, 0, 0, 0},
+            {0, 1, 2, 1},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 2, 1},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 1, 2, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 1, 2, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        }
+    }
+};
+
 
 #endif
