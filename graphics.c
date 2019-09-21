@@ -80,7 +80,7 @@ static void update(GState *state)
 
 static void draw_grid(GState *state)
 {
-    for (int i = PREDROP_BUF_SIZE; i < WELL_H; i++)
+    for (int i = PREDROP_BUF_SIZE; i < WELL_FULL_H; i++)
         for (int j = 0; j < WELL_W; j++)
         {
             SET_RENDER_COLOR(state->renderer, state->tetris->well[i][j]);

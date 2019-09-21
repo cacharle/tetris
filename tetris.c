@@ -192,9 +192,9 @@ static bool check_collisions(Tetris *tetris, Position *pos)
 
 static bool check_collision(Tetris *tetris, Position pos)
 {
-    if (pos.y < PREDROP_BUF_SIZE || pos.y > WELL_FULL_H - 1)
+    if (pos.y < PREDROP_BUF_SIZE || pos.y >= WELL_FULL_H)
         return false;
-    if (pos.x < 0 || pos.x > WELL_W)
+    if (pos.x < 0 || pos.x >= WELL_W - 1)
         return false;
 
     /* if (tetris->well[pos.y][pos.x].hexcode != EMPTY_COLOR) */
