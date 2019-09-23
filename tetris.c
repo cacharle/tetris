@@ -63,6 +63,8 @@ NextStatus tetris_next(Tetris *tetris)
     else
     {
         tetris_clear_lines(tetris);
+        free(tetris->falling->pos);
+        free(tetris->falling);
         tetris->falling = init_falling();
         if (tetris->falling == NULL)
             return NEXT_STATUS_ERROR;
@@ -139,35 +141,18 @@ static Position *rotation_pos(Tetrimino *tetrimino)
 
 static bool tetris_clear_lines(Tetris *tetris)
 {
-    int nbr_lines = 0;
-    int nbr_tetrimino = 0;
-    int i = 0;
-    int z = 21;
-    while (z != 0 && i != 12)
+    int line_cleared = 0;
+    for (int y = 21; y > 1; y--)
     {
-        if (!check_full_line(tetris, z))
-        {
-            z--;
+        if (!check_full_line(tetris, y))
             continue;
-        }
-        if (tetris->well[i][z].hexcode != EMPTY_COLOR)
-            nbr_tetrimino++;
-        if (nbr_tetrimino == 12)
-        {
-            nbr_lines++;
-            for (int y = z ; y > 1 ; y--)
-                for (int x = 0 ; x < 12 ; x++)
-                    tetris->well[y][x] = tetris->well[y-1][x];
-        }
-        i++;
-        if (i == 13)
-        {
-            i = 0;
-            z--;
-            nbr_tetrimino = 0;
-        }
+        for (int i = y; i > 1; i--)
+            for (int x = 0; x < 12; x++)
+                tetris->well[i][x] = tetris->well[i - 1][x];
+        y++;
+        line_cleared++;
     }
-    tetris->score += LINE_CLEAR_SCORE * (LINE_CLEAR_SCORE_FACTOR * (nbr_lines - 1));
+    tetris->score += LINE_CLEAR_SCORE * (LINE_CLEAR_SCORE_FACTOR * (line_cleared - 1));
     return true;
 }
 
@@ -230,7 +215,7 @@ static bool check_collision(Tetris *tetris, Position pos)
 {
     if (pos.y < PREDROP_BUF_SIZE || pos.y >= WELL_FULL_H)
         return false;
-    if (pos.x < 0 || pos.x >= WELL_W - 1)
+    if (pos.x < 0 || pos.x >= WELL_W)
         return false;
     for (int i = 0; i < 4; i++)
         if (tetris->falling->pos[i].x == pos.x && tetris->falling->pos[i].y == pos.y)

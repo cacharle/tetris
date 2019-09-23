@@ -33,4 +33,4 @@ Install with aptitude: `> sudo apt install libsdl2-dev`.
 ## FIXME
 
 - [x] Tetrimino rotation
-- [ ] Full lines clear
+- [x] Full lines clear

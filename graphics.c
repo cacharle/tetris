@@ -3,10 +3,11 @@
 #include <SDL2/SDL.h>
 #include "header.h"
 
-#define WINDOW_TITLE "Title"
+#define WINDOW_TITLE "Tetris"
 #define WINDOW_X 20
 #define WINDOW_Y 20
 #define REFRESH_TIME_STEP 1
+#define WELL_BORDER_SIZE 10
 
 #define SET_RENDER_COLOR(renderer, c) ( \
         SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
