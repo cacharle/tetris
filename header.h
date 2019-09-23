@@ -20,8 +20,8 @@
 # define TETRIMINO_O_COLOR 0xf0f019
 # define LINE_CLEAR_SCORE 100
 # define LINE_CLEAR_SCORE_FACTOR 2
-# define SOFT_DROP_FACTOR 0.5
-# define INIT_FALLING_TIME_STEP 400
+# define SOFT_DROP_FACTOR 0.2
+# define INIT_FALLING_TIME_STEP 500
 # define PREDROP_BUF_SIZE 2
 # define WELL_FULL_H (WELL_H + PREDROP_BUF_SIZE)
 
@@ -85,7 +85,7 @@ typedef struct
     int window_h;
     int block_size;
     int block_padding;
-    bool drop_soft;
+    bool soft_drop;
 } GState;
 
 // graphics.c

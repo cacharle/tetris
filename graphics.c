@@ -6,10 +6,10 @@
 #define WINDOW_TITLE "Title"
 #define WINDOW_X 20
 #define WINDOW_Y 20
-#define REFRESH_TIME_STEP 3
+#define REFRESH_TIME_STEP 1
 
 #define SET_RENDER_COLOR(renderer, c) ( \
-    SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
+        SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
 
 static void update(GState *state);
 static void event_handler(GState *state);
@@ -29,7 +29,7 @@ GState *graphics_init(int width, int height)
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         error_exit("unable to init SDL");
     state->window = SDL_CreateWindow(WINDOW_TITLE, WINDOW_X, WINDOW_Y,
-                                     width, height, 0);
+            width, height, 0);
     if (state->window == NULL)
         error_exit("unable to create window");
     state->renderer = SDL_CreateRenderer(state->window, -1, 0);
@@ -42,7 +42,7 @@ GState *graphics_init(int width, int height)
     state->window_h = height;
     state->block_size = 20;
     state->block_padding = 2;
-    state->drop_soft = false;
+    state->soft_drop = false;
     return state;
 }
 
@@ -54,12 +54,18 @@ void graphics_quit(GState *state)
 
 void graphics_run(GState *state)
 {
-    unsigned int current_time, last_time = 0;
+    unsigned int current_time, last_time = 0, last_time_soft_drop = 0;
     while (state->running)
     {
         event_handler(state);
         current_time = SDL_GetTicks();
-        if (SDL_TICKS_PASSED(current_time, last_time))
+        if (state->soft_drop && SDL_TICKS_PASSED(current_time, last_time_soft_drop))
+        {
+            last_time_soft_drop = current_time + INIT_FALLING_TIME_STEP * SOFT_DROP_FACTOR;
+            update(state);
+            tetris_next(state->tetris);
+        }
+        else if (SDL_TICKS_PASSED(current_time, last_time))
         {
             last_time = current_time + INIT_FALLING_TIME_STEP;
             update(state);
@@ -112,29 +118,35 @@ static void event_handler(GState *state)
                     case SDLK_LEFT:
                     case SDLK_h:
                         tetris_move(state->tetris, DIRECTION_LEFT);
+                        update(state);
                         break;
                     case SDLK_RIGHT:
                     case SDLK_l:
                         tetris_move(state->tetris, DIRECTION_RIGHT);
+                        update(state);
                         break;
                     case SDLK_DOWN:
                     case SDLK_j:
-                        state->drop_soft = true;
+                        state->soft_drop = true;
                         break;
                     case SDLK_SPACE:
                         tetris_hard_drop(state->tetris);
+                        update(state);
                         break;
                     case SDLK_UP:
                     case SDLK_k:
                         tetris_rotate(state->tetris, DIRECTION_RIGHT);
+                        update(state);
                         break;
                     case SDLK_z:
                         tetris_rotate(state->tetris, DIRECTION_LEFT);
+                        update(state);
                         break;
                 }
+                break;
             case SDL_KEYUP:
                 if (e.key.keysym.sym == SDLK_DOWN)
-                    state->drop_soft = false;
+                    state->soft_drop = false;
         }
     }
 }

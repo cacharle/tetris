@@ -15,14 +15,14 @@ Install with aptitude: `> sudo apt install libsdl2-dev`.
 ## TODO
 
 - [x] Score counter
-- [ ] Display score counter
+- [ ] Display score counter  @HappyTramp
 - [ ] Different color tetriminoes
 - [x] Hard drop
-- [ ] Soft drop
-- [ ] Display next tetrimino spawn
-- [ ] Display a hard drop preview
-- [ ] Display well borders
-- [ ] Prettier and resizable graphic interface
+- [x] Soft drop
+- [ ] Display next tetrimino spawn  @HappyTramp
+- [ ] Display a hard drop preview  @HappyTramp
+- [ ] Display well borders  @HappyTramp
+- [ ] Prettier and resizable graphic interface  @HappyTramp
 - [ ] Tetriminoes generation from config file (ex: ./standard.tetriminoes)
 - [ ] Generate all rotations from one
 - [ ] (MacOS/Windows) support
