@@ -11,10 +11,16 @@
 
 #define SET_RENDER_COLOR(renderer, c) ( \
         SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
+#define BORDER_LEN_HEIGHT(state) ((state->block_size + state->block_padding) \
+        * WELL_H + WELL_BORDER_SIZE)
+#define BORDER_LEN_WIDTH(state) ((state->block_size + state->block_padding) \
+        * WELL_W + WELL_BORDER_SIZE)
+#define BORDER_COLOR 0xaaaaaa
 
 static void update(GState *state);
 static void event_handler(GState *state);
-static void draw_grid(GState *state);
+static void draw_well(GState *state);
+static void draw_well_borders(GState *state);
 static void destroy_state(GState *state);
 static void error_exit_state(GState *state, const char *msg);
 static void error_exit(const char *msg);
@@ -80,24 +86,56 @@ static void update(GState *state)
 {
     SDL_SetRenderDrawColor(state->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(state->renderer);
-    draw_grid(state);
+    draw_well(state);
+    draw_well_borders(state);
     SDL_RenderPresent(state->renderer);
 }
 
-static void draw_grid(GState *state)
+static void draw_well(GState *state)
 {
-    for (int i = PREDROP_BUF_SIZE; i < WELL_FULL_H; i++)
+    for (int i = 0; i < WELL_H; i++)
         for (int j = 0; j < WELL_W; j++)
         {
-            SET_RENDER_COLOR(state->renderer, state->tetris->well[i][j]);
+            SET_RENDER_COLOR(state->renderer, state->tetris->well[i + PREDROP_BUF_SIZE][j]);
             SDL_Rect block_rect = {
-                .x = j * state->block_size + j * state->block_padding,
-                .y = i * state->block_size + i * state->block_padding,
+                .x = j * state->block_size + j * state->block_padding + WELL_BORDER_SIZE,
+                .y = i * state->block_size + i * state->block_padding + WELL_BORDER_SIZE,
                 .w = state->block_size,
                 .h = state->block_size
             };
             SDL_RenderFillRect(state->renderer, &block_rect);
         }
+}
+
+static void draw_well_borders(GState *state)
+{
+    SDL_Rect border_left;
+    SDL_Rect border_right;
+    SDL_Rect border_up;
+    SDL_Rect border_bottom;
+
+    Color border_color = { .hexcode = BORDER_COLOR };
+    SET_RENDER_COLOR(state->renderer, border_color);
+    border_left.x = 0;
+    border_left.y = 0;
+    border_left.w = WELL_BORDER_SIZE;
+    border_left.h = BORDER_LEN_HEIGHT(state);
+    SDL_RenderFillRect(state->renderer, &border_left);
+    border_right.x = BORDER_LEN_WIDTH(state);
+    border_right.y = 0;
+    border_right.w = WELL_BORDER_SIZE;
+    border_right.h = BORDER_LEN_HEIGHT(state);
+    SDL_RenderFillRect(state->renderer, &border_right);
+    border_up.x = 0;
+    border_up.y = 0;
+    border_up.w = BORDER_LEN_WIDTH(state);
+    border_up.h = WELL_BORDER_SIZE;
+    SDL_RenderFillRect(state->renderer, &border_up);
+    border_bottom.x = 0;
+    border_bottom.y = BORDER_LEN_HEIGHT(state);
+    border_bottom.w = BORDER_LEN_WIDTH(state) + WELL_BORDER_SIZE;
+    border_bottom.h = WELL_BORDER_SIZE;
+    SDL_RenderFillRect(state->renderer, &border_bottom);
 }
 
 static void event_handler(GState *state)
@@ -146,7 +184,7 @@ static void event_handler(GState *state)
                 }
                 break;
             case SDL_KEYUP:
-                if (e.key.keysym.sym == SDLK_DOWN)
+                if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_j)
                     state->soft_drop = false;
         }
     }

@@ -173,8 +173,8 @@ static Tetrimino *init_falling(void)
     spawn->index = rand() % 7;
     spawn->rotation_index = 0;
     spawn->color.hexcode = 0x00aa00;
-    spawn->pivot.y = 3;
-    spawn->pivot.x = 4;
+    spawn->pivot.y = 1;
+    spawn->pivot.x = WELL_H / 2;
     spawn->pos = rotation_pos(spawn);
     return spawn;
 }

@@ -21,7 +21,7 @@ Install with aptitude: `> sudo apt install libsdl2-dev`.
 - [x] Soft drop
 - [ ] Display next tetrimino spawn  @HappyTramp
 - [ ] Display a hard drop preview  @HappyTramp
-- [ ] Display well borders  @HappyTramp
+- [x] Display well borders  @HappyTramp
 - [ ] Prettier and resizable graphic interface  @HappyTramp
 - [ ] Tetriminoes generation from config file (ex: ./standard.tetriminoes)
 - [ ] Generate all rotations from one
