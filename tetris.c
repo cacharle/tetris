@@ -63,8 +63,6 @@ NextStatus tetris_next(Tetris *tetris)
     else
     {
         tetris_clear_lines(tetris);
-        /* free(tetris->falling->pos); */
-        /* free(tetris->falling); */
         tetris->falling = init_falling();
         if (tetris->falling == NULL)
             return NEXT_STATUS_ERROR;
@@ -81,14 +79,11 @@ bool tetris_move(Tetris *tetris, Direction direction)
 {
     Position *clone = clone_pos(tetris->falling);
     for (int i = 0; i < 4; i++)
-        printf("x %d, y %d\n", clone[i].x, clone[i].y);
-    for (int i = 0; i < 4; i++)
     {
         if (direction == DIRECTION_DOWN)
             clone[i].y++;
         else
             clone[i].x = clone[i].x + DIRECTION_MODIFIER(direction);
-        printf("x %d, y %d\n", clone[i].x, clone[i].y);
     }
     if (!check_collisions(tetris, clone))
     {
@@ -96,6 +91,10 @@ bool tetris_move(Tetris *tetris, Direction direction)
         return false;
     }
     update_falling(tetris, clone);
+    if (direction == DIRECTION_DOWN)
+        tetris->falling->pivot.y++;
+    else
+        tetris->falling->pivot.x = tetris->falling->pivot.x + DIRECTION_MODIFIER(direction);
     return true;
 }
 
@@ -108,8 +107,7 @@ void tetris_rotate(Tetris *tetris, Direction direction)
         return;
     if (!check_collisions(tetris, new_pos))
         return;
-    free(tetris->falling->pos);
-    tetris->falling->pos = new_pos;
+    update_falling(tetris, new_pos);
 }
 
 static Position *rotation_pos(Tetrimino *tetrimino)
@@ -169,7 +167,7 @@ static bool tetris_clear_lines(Tetris *tetris)
             nbr_tetrimino = 0;
         }
     }
-    tetris->score += LINE_CLEAR_SCORE * (LINE_CLEAR_SCORE_FACTOR * nbr_lines);
+    tetris->score += LINE_CLEAR_SCORE * (LINE_CLEAR_SCORE_FACTOR * (nbr_lines - 1));
     return true;
 }
 

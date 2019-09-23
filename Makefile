@@ -1,6 +1,6 @@
 NAME = tetris
 CC = gcc
-CCFLAGS = -Wall -Wextra -g
+CCFLAGS = -Wall -Wextra -std=c99
 LDFLAGS = $(shell sdl2-config --libs --cflags)
 
 HEADER = header.h

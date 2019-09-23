@@ -14,10 +14,10 @@ Install with aptitude: `> sudo apt install libsdl2-dev`.
 
 ## TODO
 
-- [ ] Score counter
+- [x] Score counter
 - [ ] Display score counter
 - [ ] Different color tetriminoes
-- [ ] Hard drop
+- [x] Hard drop
 - [ ] Soft drop
 - [ ] Display next tetrimino spawn
 - [ ] Display a hard drop preview
@@ -32,5 +32,5 @@ Install with aptitude: `> sudo apt install libsdl2-dev`.
 
 ## FIXME
 
-- [ ] Tetrimino rotation
+- [x] Tetrimino rotation
 - [ ] Full lines clear

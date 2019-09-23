@@ -6,7 +6,7 @@
 #define WINDOW_TITLE "Title"
 #define WINDOW_X 20
 #define WINDOW_Y 20
-#define REFRESH_TIME_STEP 5
+#define REFRESH_TIME_STEP 3
 
 #define SET_RENDER_COLOR(renderer, c) ( \
     SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
@@ -62,11 +62,10 @@ void graphics_run(GState *state)
         if (SDL_TICKS_PASSED(current_time, last_time))
         {
             last_time = current_time + INIT_FALLING_TIME_STEP;
-        }
             update(state);
-        printf("%d\n", tetris_next(state->tetris));
-        /* SDL_Delay(REFRESH_TIME_STEP); */
-        SDL_Delay(300);
+            tetris_next(state->tetris);
+        }
+        SDL_Delay(REFRESH_TIME_STEP);
     }
 }
 
@@ -111,18 +110,22 @@ static void event_handler(GState *state)
                         state->running = false;
                         break;
                     case SDLK_LEFT:
+                    case SDLK_h:
                         tetris_move(state->tetris, DIRECTION_LEFT);
                         break;
                     case SDLK_RIGHT:
+                    case SDLK_l:
                         tetris_move(state->tetris, DIRECTION_RIGHT);
                         break;
                     case SDLK_DOWN:
+                    case SDLK_j:
                         state->drop_soft = true;
                         break;
                     case SDLK_SPACE:
                         tetris_hard_drop(state->tetris);
                         break;
                     case SDLK_UP:
+                    case SDLK_k:
                         tetris_rotate(state->tetris, DIRECTION_RIGHT);
                         break;
                     case SDLK_z:
