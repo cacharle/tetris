@@ -72,6 +72,7 @@ typedef struct
 {
     Color **well;
     Tetrimino *falling;
+    int next_falling_index;
     int score;
 } Tetris;
 

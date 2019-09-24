@@ -3,7 +3,7 @@
 
 #define DIRECTION_MODIFIER(direction) (direction == DIRECTION_LEFT ? -1 : 1)
 
-static Tetrimino *init_falling(void);
+static Tetrimino *init_falling(int *index_ptr);
 static void update_falling(Tetris *tetris, Position *updated_pos);
 static bool check_collisions(Tetris *tetris, Position *pos);
 static bool check_collision(Tetris *tetris, Position pos);
@@ -34,7 +34,8 @@ Tetris *tetris_init(void)
         for (int j = 0; j < WELL_W; j++)
             tetris->well[i][j].hexcode = EMPTY_COLOR;
     }
-    if ((tetris->falling = init_falling()) == NULL)
+    tetris->next_falling_index = rand() % 7;
+    if ((tetris->falling = init_falling(&tetris->next_falling_index)) == NULL)
         return NULL;
     tetris->score = 0;
     return tetris;
@@ -69,7 +70,7 @@ NextStatus tetris_next(Tetris *tetris)
         tetris_clear_lines(tetris);
         free(tetris->falling->pos);
         free(tetris->falling);
-        tetris->falling = init_falling();
+        tetris->falling = init_falling(&tetris->next_falling_index);
         if (tetris->falling == NULL)
             return NEXT_STATUS_ERROR;
         return NEXT_STATUS_END;
@@ -122,7 +123,6 @@ static Position *rotation_pos(Tetrimino *tetrimino)
     if (pos == NULL)
         return NULL;
     Position pivot;
-    /* int **current_rotation = (int**); */
     int i, j;
     for (i = 0; i < 4; i++)
         for (j = 0; j < 4; j++)
@@ -174,17 +174,18 @@ static bool check_full_line(Tetris *tetris, int line_index)
     return true;
 }
 
-static Tetrimino *init_falling(void)
+static Tetrimino *init_falling(int *index_ptr)
 {
     Tetrimino *spawn = (Tetrimino*)malloc(sizeof(Tetrimino));
     if (spawn == NULL)
         return NULL;
-    spawn->index = rand() % 7;
+    spawn->index = *index_ptr;
     spawn->rotation_index = 0;
     spawn->color.hexcode = 0x00aa00;
     spawn->pivot.y = 1;
     spawn->pivot.x = WELL_W / 2;
     spawn->pos = rotation_pos(spawn);
+    *index_ptr = rand() % 7;
     return spawn;
 }
 

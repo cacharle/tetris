@@ -21,7 +21,6 @@ Some (shitty?) [Tetris](https://en.wikipedia.org/wiki/Tetris) Game implementatio
 - [ ] Different color tetriminoes
 - [x] Hard drop
 - [x] Soft drop
-- [ ] Display next tetrimino spawn  @HappyTramp
 - [ ] Display a hard drop preview  @HappyTramp
 - [x] Display well borders  @HappyTramp
 - [ ] Prettier and resizable graphic interface  @HappyTramp
@@ -33,8 +32,8 @@ Some (shitty?) [Tetris](https://en.wikipedia.org/wiki/Tetris) Game implementatio
       (in the [libconfig](https://hyperrealm.github.io/libconfig/) format)
 - [ ] Add level and accelerate fall according to it.
 - [ ] Display level  @HappyTramp
-- [ ] Generate next spawn in advance
-- [ ] Display next spawn  @HappyTramp
+- [x] Generate next spawn in advance
+- [x] Display next tetrimino spawn  @HappyTramp
 - [ ] Game over when no more space
 - [ ] Display end game screen with scores  @HappyTramp
 - [ ] Log previous games score

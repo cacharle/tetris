@@ -1,5 +1,6 @@
-#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include "header.h"
@@ -12,6 +13,8 @@
 
 #define FONT_PTSIZE 16
 #define SCORE_MARGIN 30
+#define NEXT_FALLING_MARGIN_TOP 150
+#define NEXT_FALLING_MARGIN_LEFT 15
 #define SET_RENDER_COLOR(renderer, c) ( \
         SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
 #define BORDER_LEN_HEIGHT(state) ((state->block_size + state->block_padding) \
@@ -25,6 +28,7 @@ static void event_handler(GState *state);
 static void draw_well(GState *state);
 static void draw_well_borders(GState *state);
 static void draw_score(GState *state);
+static void draw_next_falling(GState *state);
 static void draw_surface(GState *state, SDL_Surface *surface, int x, int y);
 static void destroy_state(GState *state);
 static void error_exit_state(GState *state, const char *msg);
@@ -106,21 +110,21 @@ static void update(GState *state)
     draw_well(state);
     draw_well_borders(state);
     draw_score(state);
+    draw_next_falling(state);
     SDL_RenderPresent(state->renderer);
 }
 
 static void draw_well(GState *state)
 {
+    SDL_Rect block_rect;
+    block_rect.w = state->block_size;
+    block_rect.h = state->block_size;
     for (int i = 0; i < WELL_H; i++)
         for (int j = 0; j < WELL_W; j++)
         {
             SET_RENDER_COLOR(state->renderer, state->tetris->well[i + PREDROP_BUF_SIZE][j]);
-            SDL_Rect block_rect = {
-                .x = j * state->block_size + j * state->block_padding + WELL_BORDER_SIZE,
-                .y = i * state->block_size + i * state->block_padding + WELL_BORDER_SIZE,
-                .w = state->block_size,
-                .h = state->block_size
-            };
+            block_rect.x = j * state->block_size + j * state->block_padding + WELL_BORDER_SIZE;
+            block_rect.y = i * state->block_size + i * state->block_padding + WELL_BORDER_SIZE;
             SDL_RenderFillRect(state->renderer, &block_rect);
         }
 }
@@ -165,9 +169,28 @@ static void draw_score(GState *state)
     draw_surface(state, score_text_surface, BORDER_LEN_WIDTH(state) + SCORE_MARGIN, 0);
 
     char score_str[128];
-    sprintf(score_str, "%d", state->tetris->score);
+    snprintf(score_str, 128, "%d", state->tetris->score);
     SDL_Surface *score_text = TTF_RenderText_Solid(state->font, score_str, text_color);
     draw_surface(state, score_text,  BORDER_LEN_WIDTH(state) + SCORE_MARGIN, 40);
+}
+
+static void draw_next_falling(GState *state)
+{
+    SDL_Rect block;
+    block.w = state->block_size;
+    block.h = state->block_size;
+    SDL_SetRenderDrawColor(state->renderer, 255, 255, 255, 255);
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+        {
+            if (TETRIMINOES[state->tetris->next_falling_index][0][i][j] == EMPTY_COLOR)
+                continue;
+            block.x = i * (state->block_padding + state->block_size)
+                + NEXT_FALLING_MARGIN_LEFT + BORDER_LEN_WIDTH(state);
+            block.y = j * (state->block_padding + state->block_size) + NEXT_FALLING_MARGIN_TOP;
+            SDL_RenderFillRect(state->renderer, &block);
+
+        }
 }
 
 static void draw_surface(GState *state, SDL_Surface *surface, int x, int y)
