@@ -1,47 +1,61 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "header.h"
 
 #define WINDOW_TITLE "Tetris"
-#define WINDOW_X 20
-#define WINDOW_Y 20
+#define WINDOW_X SDL_WINDOWPOS_UNDEFINED
+#define WINDOW_Y SDL_WINDOWPOS_UNDEFINED
 #define REFRESH_TIME_STEP 1
 #define WELL_BORDER_SIZE 10
 
+#define FONT_PTSIZE 16
+#define SCORE_MARGIN 30
 #define SET_RENDER_COLOR(renderer, c) ( \
         SDL_SetRenderDrawColor(renderer, c.rgb.r, c.rgb.g, c.rgb.b, SDL_ALPHA_OPAQUE))
 #define BORDER_LEN_HEIGHT(state) ((state->block_size + state->block_padding) \
-        * WELL_H + WELL_BORDER_SIZE)
+        * WELL_H + WELL_BORDER_SIZE - state->block_padding)
 #define BORDER_LEN_WIDTH(state) ((state->block_size + state->block_padding) \
-        * WELL_W + WELL_BORDER_SIZE)
+        * WELL_W + WELL_BORDER_SIZE - state->block_padding)
 #define BORDER_COLOR 0xaaaaaa
 
 static void update(GState *state);
 static void event_handler(GState *state);
 static void draw_well(GState *state);
 static void draw_well_borders(GState *state);
+static void draw_score(GState *state);
+static void draw_surface(GState *state, SDL_Surface *surface, int x, int y);
 static void destroy_state(GState *state);
 static void error_exit_state(GState *state, const char *msg);
 static void error_exit(const char *msg);
 
 GState *graphics_init(int width, int height)
 {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        error_exit("unable to init SDL");
     GState *state = (GState*)malloc(sizeof(GState));
     if (state == NULL)
     {
         fprintf(stderr, "Error: unable to allocate memory for graphic state");
         exit(EXIT_FAILURE);
     }
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-        error_exit("unable to init SDL");
+    if (TTF_Init() < 0)
+    {
+        free(state);
+        error_exit("unable to init TTF");
+    }
     state->window = SDL_CreateWindow(WINDOW_TITLE, WINDOW_X, WINDOW_Y,
             width, height, 0);
     if (state->window == NULL)
         error_exit("unable to create window");
+    state->tetris = NULL;
+    state->font = NULL;
     state->renderer = SDL_CreateRenderer(state->window, -1, 0);
     if (state->renderer == NULL)
         error_exit_state(state, "unable to create renderer");
+    if ((state->font = TTF_OpenFont("./fonts/potra/Potra.ttf", FONT_PTSIZE)) == NULL)
+        error_exit_state(state, "unable to open font");
     if ((state->tetris = tetris_init()) == NULL)
         error_exit_state(state, "unable to init tetris");
     state->running = true;
@@ -56,7 +70,10 @@ GState *graphics_init(int width, int height)
 void graphics_quit(GState *state)
 {
     destroy_state(state);
-    SDL_Quit();
+    if (TTF_WasInit())
+        TTF_Quit();
+    if (SDL_WasInit(SDL_INIT_VIDEO))
+        SDL_Quit();
 }
 
 void graphics_run(GState *state)
@@ -88,6 +105,7 @@ static void update(GState *state)
     SDL_RenderClear(state->renderer);
     draw_well(state);
     draw_well_borders(state);
+    draw_score(state);
     SDL_RenderPresent(state->renderer);
 }
 
@@ -136,6 +154,42 @@ static void draw_well_borders(GState *state)
     border_bottom.w = BORDER_LEN_WIDTH(state) + WELL_BORDER_SIZE;
     border_bottom.h = WELL_BORDER_SIZE;
     SDL_RenderFillRect(state->renderer, &border_bottom);
+}
+
+static void draw_score(GState *state)
+{
+    SDL_Color text_color = { .r = 255, .g = 255, .b = 255, .a = 255 };
+    SDL_Surface *score_text_surface = TTF_RenderText_Solid(state->font, "score", text_color);
+    if (score_text_surface == NULL)
+        error_exit_state(state, "unable to create score text surface");
+    draw_surface(state, score_text_surface, BORDER_LEN_WIDTH(state) + SCORE_MARGIN, 0);
+
+    char score_str[128];
+    sprintf(score_str, "%d", state->tetris->score);
+    SDL_Surface *score_text = TTF_RenderText_Solid(state->font, score_str, text_color);
+    draw_surface(state, score_text,  BORDER_LEN_WIDTH(state) + SCORE_MARGIN, 40);
+}
+
+static void draw_surface(GState *state, SDL_Surface *surface, int x, int y)
+{
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(state->renderer, surface);
+    SDL_FreeSurface(surface);
+    if (texture == NULL)
+        error_exit_state(state, "unable to create texture");
+    SDL_Rect frame;
+    if (SDL_QueryTexture(texture, NULL, NULL, &frame.w, &frame.h) != 0)
+    {
+        SDL_DestroyTexture(texture);
+        error_exit_state(state, "unable to load texture");
+    }
+    frame.x = x;
+    frame.y = y;
+    if (SDL_RenderCopy(state->renderer, texture, NULL, &frame) != 0)
+    {
+        SDL_DestroyTexture(texture);
+        error_exit_state(state, "unable to render texture");
+    }
+    SDL_DestroyTexture(texture);
 }
 
 static void event_handler(GState *state)
@@ -194,7 +248,8 @@ static void destroy_state(GState *state)
 {
     if (state == NULL)
         return;
-    /* tetris_destroy(state->tetris); */
+    tetris_destroy(state->tetris);
+    TTF_CloseFont(state->font);
     SDL_DestroyRenderer(state->renderer);
     SDL_DestroyWindow(state->window);
     free(state);
@@ -209,6 +264,9 @@ static void error_exit_state(GState *state, const char *msg)
 static void error_exit(const char *msg)
 {
     SDL_Log("ERROR: %s: %s", SDL_GetError(), msg);
-    SDL_Quit();
+    if (TTF_WasInit())
+        TTF_Quit();
+    if (SDL_WasInit(SDL_INIT_VIDEO))
+        SDL_Quit();
     exit(EXIT_FAILURE);
 }

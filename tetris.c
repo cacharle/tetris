@@ -42,7 +42,8 @@ Tetris *tetris_init(void)
 
 void tetris_destroy(Tetris *tetris)
 {
-    free(tetris);
+    if (tetris == NULL)
+        return;
     if (tetris->well == NULL)
         return;
     for (int i = 0; i < WELL_FULL_H; i++)
@@ -52,8 +53,11 @@ void tetris_destroy(Tetris *tetris)
         free(tetris->well[i]);
     }
     free(tetris->well);
+    if (tetris->falling == NULL)
+        return;
     free(tetris->falling->pos);
     free(tetris->falling);
+    free(tetris);
 }
 
 NextStatus tetris_next(Tetris *tetris)
@@ -152,7 +156,12 @@ static bool tetris_clear_lines(Tetris *tetris)
         y++;
         line_cleared++;
     }
-    tetris->score += LINE_CLEAR_SCORE * (LINE_CLEAR_SCORE_FACTOR * (line_cleared - 1));
+    if (line_cleared < 1)
+        return false;
+    int factor;
+    for (factor = 1; line_cleared > 1; line_cleared--)
+        factor *= LINE_CLEAR_SCORE_FACTOR;
+    tetris->score += LINE_CLEAR_SCORE * factor;
     return true;
 }
 
@@ -174,7 +183,7 @@ static Tetrimino *init_falling(void)
     spawn->rotation_index = 0;
     spawn->color.hexcode = 0x00aa00;
     spawn->pivot.y = 1;
-    spawn->pivot.x = WELL_H / 2;
+    spawn->pivot.x = WELL_W / 2;
     spawn->pos = rotation_pos(spawn);
     return spawn;
 }

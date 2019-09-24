@@ -1,7 +1,7 @@
 NAME = tetris
 CC = gcc
 CCFLAGS = -Wall -Wextra -std=c99
-LDFLAGS = $(shell sdl2-config --libs --cflags)
+LDFLAGS = $(shell sdl2-config --libs --cflags) -lSDL2_ttf
 
 HEADER = header.h
 SRC = main.c graphics.c tetris.c
@@ -13,8 +13,14 @@ RM = rm -f
 all: $(NAME)
 
 .PHONY: debug
-debug: CCFLAGS += -g -fsanitize=address
+debug: CCFLAGS += -g
 debug: re
+	valgrind ./tetris
+
+.PHONY: debug-sanitize
+debug-sanitize: CCFLAGS += -g -fsanitize=address
+debug-sanitize: re
+	./tetris
 
 $(NAME): $(OBJ) $(HEADER)
 	$(CC) $(LDFLAGS) $(CCFLAGS) -o $@ $(OBJ)

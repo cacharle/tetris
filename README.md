@@ -4,8 +4,10 @@ Some (shitty?) [Tetris](https://en.wikipedia.org/wiki/Tetris) Game implementatio
 
 ## Dependencies
 
-[SDL](https://www.libsdl.org/) used for the graphics.
-Install with aptitude: `> sudo apt install libsdl2-dev`.
+- [SDL2](https://www.libsdl.org/) for the graphics.
+  Install with aptitude: `> sudo apt install libsdl2-dev`.
+- [SDL2_tff]() to display text.
+  Install with aptitude: `> sudo apt install libsdl2-ttf-dev`.
 
 ## Usage
 
@@ -15,7 +17,7 @@ Install with aptitude: `> sudo apt install libsdl2-dev`.
 ## TODO
 
 - [x] Score counter
-- [ ] Display score counter  @HappyTramp
+- [x] Display score counter  @HappyTramp
 - [ ] Different color tetriminoes
 - [x] Hard drop
 - [x] Soft drop
@@ -28,9 +30,21 @@ Install with aptitude: `> sudo apt install libsdl2-dev`.
 - [ ] (MacOS/Windows) support
 - [ ] Command line options (well dimensions, tetriminoes colors, ...)
 - [ ] Default options config files
-      (in minimalistic [TOML](https://github.com/toml-lang/toml) format)
+      (in the [libconfig](https://hyperrealm.github.io/libconfig/) format)
+- [ ] Add level and accelerate fall according to it.
+- [ ] Display level  @HappyTramp
+- [ ] Generate next spawn in advance
+- [ ] Display next spawn  @HappyTramp
+- [ ] Game over when no more space
+- [ ] Display end game screen with scores  @HappyTramp
+- [ ] Log previous games score
 
 ## FIXME
 
 - [x] Tetrimino rotation
 - [x] Full lines clear
+
+### Fonts
+
+- [Potra](./fonts/potra)
+- [Monofonto](./fonts/monofonto)

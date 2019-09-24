@@ -3,6 +3,7 @@
 
 # include <stdbool.h>
 # include <SDL2/SDL.h>
+# include <SDL2/SDL_ttf.h>
 
 # define TETRIMINO_NB 7
 # define TETRIMINO_ROTATIONS 4
@@ -71,7 +72,6 @@ typedef struct
 {
     Color **well;
     Tetrimino *falling;
-    // int ****tetriminoes;
     int score;
 } Tetris;
 
@@ -80,6 +80,7 @@ typedef struct
     SDL_Window *window;
     SDL_Renderer *renderer;
     Tetris *tetris;
+    TTF_Font *font;
     bool running;
     int window_w;
     int window_h;
