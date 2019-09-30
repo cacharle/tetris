@@ -68,6 +68,7 @@ NextStatus tetris_next(Tetris *tetris)
     else
     {
         tetris_clear_lines(tetris);
+        tetris_game_over(tetris);
         free(tetris->falling->pos);
         free(tetris->falling);
         tetris->falling = init_falling(&tetris->next_falling_index);
@@ -172,6 +173,16 @@ static bool check_full_line(Tetris *tetris, int line_index)
         if (tetris->well[line_index][i].hexcode == EMPTY_COLOR)
             return false;
     return true;
+}
+
+static bool tetris_game_over(Tetris *tetris)
+{
+    for (int x = 0 ; x < 12 ; x++)
+    {
+        if (tetris->well[0][x].hexcode != EMPTY_COLOR)
+            return true;
+    }
+    return false;
 }
 
 static Tetrimino *init_falling(int *index_ptr)

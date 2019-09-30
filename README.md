@@ -18,7 +18,7 @@ Some (shitty?) [Tetris](https://en.wikipedia.org/wiki/Tetris) Game implementatio
 
 - [x] Score counter
 - [x] Display score counter  @HappyTramp
-- [ ] Different color tetriminoes
+- [ ] Different color tetriminoes @Walker
 - [x] Hard drop
 - [x] Soft drop
 - [ ] Display a hard drop preview  @HappyTramp
@@ -34,9 +34,9 @@ Some (shitty?) [Tetris](https://en.wikipedia.org/wiki/Tetris) Game implementatio
 - [ ] Display level  @HappyTramp
 - [x] Generate next spawn in advance
 - [x] Display next tetrimino spawn  @HappyTramp
-- [ ] Game over when no more space
+- [ ] Game over when no more space @Walker
 - [ ] Display end game screen with scores  @HappyTramp
-- [ ] Log previous games score
+- [ ] Log previous games score @Walker
 
 ## FIXME
 
