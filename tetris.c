@@ -11,6 +11,7 @@ static bool tetris_clear_lines(Tetris *tetris);
 static bool check_full_line(Tetris *tetris, int line_index);
 static Position *clone_pos(Tetrimino *tetrimino);
 static Position *rotation_pos(Tetrimino *tetrimino);
+static bool tetris_game_over(Tetris *tetris);
 
 Tetris *tetris_init(void)
 {
